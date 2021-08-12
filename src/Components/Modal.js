@@ -1,34 +1,33 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Button, Title } from '../pages/admin/admin.style';
+import { UserStorage } from '../utils/userStorage';
 
-const Modal = ({ store, tableData, setTableData, updateData, setUpdateModal }) => {
+const Modal = ({ setTableData, updateData, setUpdateModal }) => {
   const formRef = useRef(null);
+  const [name, setName] = useState(updateData.name);
+  const [password, setPassword] = useState(updateData.password);
+  const [address, setAddress] = useState(updateData.address);
+  const [role, setRole] = useState(updateData.role);
+  const [age, setAge] = useState(updateData.age);
+  const storageRef = useRef();
+  storageRef.current = new UserStorage('userData');
 
-  const handleClickSave = useCallback(() => {
-    const valueArray = Array.from(formRef.current.children, a => a);
-    const newTableData = [...tableData].map(v => {
-      if (v.id === updateData.id) {
-        const newData = {
-          id: updateData.id,
-          name: valueArray[0].children[1].value,
-          password: valueArray[1].children[1].value,
-          address: valueArray[2].children[1].value,
-          role: valueArray[3].children[1].value,
-          age: valueArray[4].children[1].value,
-          card: { ...v.card },
-        };
-        return newData;
-      } else {
-        return v;
-      }
-    });
-
-    store.replaceAll(newTableData);
-    setTableData(() => newTableData);
-    setUpdateModal(() => false);
-  }, []);
+  const handleClickSave = () => {
+    const newItem = {
+      id: updateData.id,
+      name,
+      password,
+      address,
+      role,
+      age,
+      card: updateData.card,
+    };
+    storageRef.current.update(newItem);
+    setTableData(storageRef.current.getAll());
+    setUpdateModal(false);
+  };
 
   const handleClickClose = useCallback(() => {
     setUpdateModal(false);
@@ -42,23 +41,33 @@ const Modal = ({ store, tableData, setTableData, updateData, setUpdateModal }) =
           <Form ref={formRef}>
             <InputGroup>
               <Label>이름</Label>
-              <input type="text" defaultValue={updateData.name} />
+              <input type="text" defaultValue={name} onChange={e => setName(e.target.value)} />
             </InputGroup>
             <InputGroup>
               <Label>Password</Label>
-              <input type="text" defaultValue={updateData.password} minLength={6} maxLength={12} />
+              <input
+                type="text"
+                defaultValue={password}
+                onChange={e => setPassword(e.target.value)}
+                minLength={6}
+                maxLength={12}
+              />
             </InputGroup>
             <InputGroup>
               <Label>Address</Label>
-              <input type="text" defaultValue={updateData.address} />
+              <input
+                type="text"
+                defaultValue={address}
+                onChange={e => setAddress(e.target.value)}
+              />
             </InputGroup>
             <InputGroup>
               <Label>권한</Label>
-              <input type="text" defaultValue={updateData.role} />
+              <input type="text" defaultValue={role} onChange={e => setRole(e.target.value)} />
             </InputGroup>
             <InputGroup>
               <Label>Age</Label>
-              <input type="text" defaultValue={updateData.age} />
+              <input type="text" defaultValue={age} onChange={e => setAge(e.target.value)} />
             </InputGroup>
             <BtnGroup>
               <Button gray onClick={handleClickClose}>
