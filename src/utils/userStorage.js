@@ -9,8 +9,18 @@ export class UserStorage {
 
   // 아이템을 넘겨주면 LocalStorage에 Object로 저장
   save(item) {
-    if (this._checkExistId(item.id)) return;
+    if (this._checkExistId(item.id)) {
+      console.log('존재');
+      return;
+    }
     this.userList.push(item);
+    const result = this._changeToObject(this.userList);
+    this._setDataAtStorage(result);
+  }
+
+  update(item) {
+    this.userList.push(item);
+    console.log('-->', this.userList);
     const result = this._changeToObject(this.userList);
     this._setDataAtStorage(result);
   }
@@ -27,7 +37,9 @@ export class UserStorage {
   // localStorage 데이터 교체
   replaceAll(arr) {
     localStorage.removeItem(this.name);
-    localStorage.setItem(this.name, JSON.stringify(arr));
+    const result = this._changeToObject(arr);
+    this._setDataAtStorage(result);
+    //localStorage.setItem(this.name, JSON.stringify(arr));
   }
 
   getUser() {
